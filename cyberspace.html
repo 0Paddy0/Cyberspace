@@ -146,9 +146,10 @@ if(!window.__nv_bound){
   });
 } // <-- schließt: if (!window.__nv_bound)
 
- * Audio   *
- ***********/
-class AudioSys{
+  /***********
+   * Audio   *
+   ***********/
+  class AudioSys{
   constructor(){this.ctx=null;this.muted=false;}
   ensure(){if(!this.ctx && !this.muted){this.ctx = new (window.AudioContext||window.webkitAudioContext)();}}
   beep(type='shoot'){
@@ -318,7 +319,7 @@ class Drone{
 const ENEMY_TYPES = { DRONE:'DRONE', TANK:'TANK', JET:'JET', BOSS:'BOSS', TURRET:'TURRET', PHASE:'PHASE', SPLITTER:'SPLITTER', WISP:'WISP', AEGIS:'AEGIS' };
 
 class Bullet{ constructor(x,y,vx,vy,damage,crit,pierce){ this.x=x; this.y=y; this.vx=vx; this.vy=vy; this.r=4; this.damage=damage||10; this.crit=crit||0; this.pierce=pierce||0; this.hitCount=0; this.dead=false;} update(dt){ this.x+=this.vx*dt; this.y+=this.vy*dt; if(this.x<-30||this.x>WORLD_W+30||this.y<-30||this.y>WORLD_H+30) this.dead=true;} draw(ctx){ ctx.fillStyle='#9ff'; ctx.shadowColor='#9ff'; ctx.shadowBlur=8; ctx.beginPath(); ctx.arc(this.x,this.y,this.r,0,Math.PI*2); ctx.fill(); ctx.shadowBlur=0; }}
-class EnemyBullet{ constructor(x,y,vx,vy,damage){ this.x=x; this.y=y; this.vx=vx; this.vy=vy; this.r=5; this.damage=damage||10; this.dead=false;} update(dt){ this.x+=this.vx*dt; this.y+=this.vy*dt; if(this.x<-50||this.x>WORLD_W+50||this.y<-50||this.y>WORLD_H+50) this.dead=true;} draw(ctx){ ctx.fillStyle='#f7a'; ctx.shadowColor:'#f0a'; ctx.shadowBlur=12; ctx.beginPath(); ctx.arc(this.x,this.y,this.r,0,Math.PI*2); ctx.fill(); ctx.shadowBlur=0; }}
+class EnemyBullet{ constructor(x,y,vx,vy,damage){ this.x=x; this.y=y; this.vx=vx; this.vy=vy; this.r=5; this.damage=damage||10; this.dead=false;} update(dt){ this.x+=this.vx*dt; this.y+=this.vy*dt; if(this.x<-50||this.x>WORLD_W+50||this.y<-50||this.y>WORLD_H+50) this.dead=true;} draw(ctx){ ctx.fillStyle='#f7a'; ctx.shadowColor='#f0a'; ctx.shadowBlur=12; ctx.beginPath(); ctx.arc(this.x,this.y,this.r,0,Math.PI*2); ctx.fill(); ctx.shadowBlur=0; }}
 
 class SingularityField{ constructor(x,y){ this.x=x; this.y=y; this.r=180; this.t=3; } update(dt,game){ this.t-=dt; for(const e of game.enemies){ const dx=this.x-e.x, dy=this.y-e.y; const d=Math.hypot(dx,dy); if(d<this.r && d>6){ const pull = 260*(1-d/this.r); e.x += (dx/d)*pull*dt; e.y += (dy/d)*pull*dt; e.hp -= 10*dt; if(e.hp<=0) { e.dead=true; game.onEnemyDeath(e); game.explode(e.x,e.y,20,'#f0f'); game.addScore(40); game.addXP(16); } } } } draw(ctx){ ctx.save(); ctx.globalAlpha=0.25; ctx.strokeStyle='#f0f'; ctx.shadowColor='#f0f'; ctx.shadowBlur=24; ctx.beginPath(); ctx.arc(this.x,this.y,this.r,0,Math.PI*2); ctx.stroke(); ctx.globalAlpha=1; ctx.restore(); } }
 
@@ -515,3 +516,21 @@ class Game{
     // enemy bullets
     for(let i=this.eBullets.length-1;i>=0;i--){ const eb=this.eBullets[i]; const slow = Math.max(0.5, 1 - 0.02*(this.skills['scramble']||0)); eb.update(dt*slow); if(eb.dead){ this.eBullets.splice(i,1); continue; }
       const dx=this.player.x-eb.x, dy=this.player.y-eb.y; const rr=this.player.r+eb.r; if(dx*dx+dy*dy<=rr*rr){ this.player.hit(18,this); eb.dead=true; }
+    }
+  }
+}
+
+game = new Game();
+let last = performance.now();
+function loop(t) {
+  const dt = (t - last) / 1000;
+  last = t;
+  game.update(dt);
+  requestAnimationFrame(loop);
+}
+requestAnimationFrame(loop);
+
+})();
+</script>
+</body>
+</html>
