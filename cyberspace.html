@@ -36,7 +36,7 @@
 </head>
 <body>
   <div id="wrap">
-    <canvas id="view" width="1280" height="720" aria-label="Neon Void Game"></canvas>
+    <canvas id="view" width="960" height="540" aria-label="Neon Void Game"></canvas>
   </div>
   <div class="scanlines"></div>
 
@@ -82,7 +82,7 @@ let game;
  *************************/
 const VIEW = document.getElementById('view');
 const VCTX = VIEW.getContext('2d');
-const WORLD_W = 1280, WORLD_H = 720; // internal resolution
+const WORLD_W = 960, WORLD_H = 540; // internal resolution
 // Offscreen world canvas for crisp scaling
 const world = document.createElement('canvas');
 world.width = WORLD_W; world.height = WORLD_H;
@@ -370,8 +370,8 @@ function renderSkills(game){ const pointsEl=document.getElementById('points'); i
 
 function xpForLevel(n){ return Math.floor(60 * Math.pow(1.25, n-1)); }
 
-class Enemy{ constructor(type,x,y,level){ this.type=type; this.x=x; this.y=y; this.vx=0; this.vy=0; this.level=level||1; this.dead=false; this.cool=0; this.stunT=0; this.invuln=false; const T=ENEMY_TYPES; if(type===T.BOSS){ this.r=48; this.hpMax=1800; this.speed=90; this.score=500; this.xp=140; } else if(type===T.TANK){ this.r=26; this.hpMax=240; this.speed=60; this.score=60; this.xp=24; } else if(type===T.JET){ this.r=16; this.hpMax=40; this.speed=200; this.score=30; this.xp=10; } else if(type===T.TURRET){ this.r=22; this.hpMax=140; this.speed=0; this.score=45; this.xp=16; } else if(type===T.PHASE){ this.r=18; this.hpMax=100; this.speed=90; this.score=40; this.xp=14; this.phaseT=rand(1.2,2.4); } else if(type===T.SPLITTER){ this.r=18; this.hpMax=90; this.speed=110; this.score=35; this.xp=12; } else if(type===T.WISP){ this.r=12; this.hpMax=50; this.speed=140; this.score=26; this.xp=10; this.chargeT=rand(1.5,3); } else if(type===T.AEGIS){ this.r=20; this.hpMax=150; this.speed=80; this.score=50; this.xp=18; this.auraR=160; } else { this.r=18; this.hpMax=80; this.speed=100; this.score=30; this.xp=10; } this.hp=this.hpMax; }
-  update(dt,game){ if(this.stunT>0){ this.stunT-=dt; return; } const T=ENEMY_TYPES; const px=game.player.x, py=game.player.y; if(this.type===T.BOSS){ const ang=Math.atan2(py-this.y, px-this.x); this.vx=Math.cos(ang)*this.speed; this.vy=Math.sin(ang)*this.speed; this.x+=this.vx*dt; this.y+=this.vy*dt; this.cool-=dt; if(this.cool<=0){ this.cool=0.5; const spread=10; const base=ang; for(let i=0;i<spread;i++){ const a=base+(i-(spread-1)/2)*0.18; const s=180; game.eBullets.push(new EnemyBullet(this.x,this.y,Math.cos(a)*s,Math.sin(a)*s,16)); } SFX.beep('hit'); } } else if(this.type===T.TURRET){ this.cool-=dt; if(this.cool<=0){ this.cool=1.2; const a=Math.atan2(py-this.y, px-this.x); const s=200; game.eBullets.push(new EnemyBullet(this.x,this.y,Math.cos(a)*s,Math.sin(a)*s,14)); } } else if(this.type===T.PHASE){ this.phaseT-=dt; if(this.phaseT<=0){ this.phaseT=rand(1.2,2.2); this.invuln=!this.invuln; } const ang=Math.atan2(py-this.y, px-this.x); const sp=this.speed*(this.invuln?1.6:1.0); this.vx=Math.cos(ang)*sp; this.vy=Math.sin(ang)*sp; this.x+=this.vx*dt; this.y+=this.vy*dt; if(!this.invuln){ this.cool-=dt; if(this.cool<=0){ this.cool=1.6; const a=ang; game.eBullets.push(new EnemyBullet(this.x,this.y,Math.cos(a)*160,Math.sin(a)*160,12)); } } } else if(this.type===T.WISP){ this.chargeT-=dt; if(this.chargeT<=0){ this.chargeT=rand(1.4,2.4); const ang=Math.atan2(py-this.y, px-this.x); this.vx=Math.cos(ang)*380; this.vy=Math.sin(ang)*380; } this.x+=this.vx*dt; this.y+=this.vy*dt; this.vx*=0.98; this.vy*=0.98; } else { let ang=Math.atan2(py-this.y, px-this.x); const sp=(this.type===T.JET?this.speed*1.2:this.speed); this.vx=Math.cos(ang)*sp; this.vy=Math.sin(ang)*sp; if(this.type===T.TANK){ this.vx*=0.6; this.vy*=0.6; } this.x+=this.vx*dt; this.y+=this.vy*dt; } if(this.x<-80||this.x>WORLD_W+80||this.y<-80||this.y>WORLD_H+80) this.dead=true; }
+class Enemy{ constructor(type,x,y,level){ this.type=type; this.x=x; this.y=y; this.vx=0; this.vy=0; this.level=level||1; this.dead=false; this.cool=0; this.stunT=0; this.invuln=false; const T=ENEMY_TYPES; if(type===T.BOSS){ this.r=48; this.hpMax=600+level*120; this.speed=90; this.score=500; this.xp=140; this.spread=6+Math.floor(level/5); this.bulletDamage=12+Math.floor(level/4); this.coolTime=Math.max(0.5,0.7-level*0.02); } else if(type===T.TANK){ this.r=26; this.hpMax=240; this.speed=60; this.score=60; this.xp=24; } else if(type===T.JET){ this.r=16; this.hpMax=40; this.speed=200; this.score=30; this.xp=10; } else if(type===T.TURRET){ this.r=22; this.hpMax=140; this.speed=0; this.score=45; this.xp=16; } else if(type===T.PHASE){ this.r=18; this.hpMax=100; this.speed=90; this.score=40; this.xp=14; this.phaseT=rand(1.2,2.4); } else if(type===T.SPLITTER){ this.r=18; this.hpMax=90; this.speed=110; this.score=35; this.xp=12; } else if(type===T.WISP){ this.r=12; this.hpMax=50; this.speed=140; this.score=26; this.xp=10; this.chargeT=rand(1.5,3); } else if(type===T.AEGIS){ this.r=20; this.hpMax=150; this.speed=80; this.score=50; this.xp=18; this.auraR=160; } else { this.r=18; this.hpMax=80; this.speed=100; this.score=30; this.xp=10; } this.hp=this.hpMax; }
+  update(dt,game){ if(this.stunT>0){ this.stunT-=dt; return; } const T=ENEMY_TYPES; const px=game.player.x, py=game.player.y; if(this.type===T.BOSS){ const ang=Math.atan2(py-this.y, px-this.x); this.vx=Math.cos(ang)*this.speed; this.vy=Math.sin(ang)*this.speed; this.x+=this.vx*dt; this.y+=this.vy*dt; this.cool-=dt; if(this.cool<=0){ this.cool=this.coolTime; const spread=this.spread; const base=ang; for(let i=0;i<spread;i++){ const a=base+(i-(spread-1)/2)*0.18; const s=180; game.eBullets.push(new EnemyBullet(this.x,this.y,Math.cos(a)*s,Math.sin(a)*s,this.bulletDamage)); } SFX.beep('hit'); } } else if(this.type===T.TURRET){ this.cool-=dt; if(this.cool<=0){ this.cool=1.2; const a=Math.atan2(py-this.y, px-this.x); const s=200; game.eBullets.push(new EnemyBullet(this.x,this.y,Math.cos(a)*s,Math.sin(a)*s,14)); } } else if(this.type===T.PHASE){ this.phaseT-=dt; if(this.phaseT<=0){ this.phaseT=rand(1.2,2.2); this.invuln=!this.invuln; } const ang=Math.atan2(py-this.y, px-this.x); const sp=this.speed*(this.invuln?1.6:1.0); this.vx=Math.cos(ang)*sp; this.vy=Math.sin(ang)*sp; this.x+=this.vx*dt; this.y+=this.vy*dt; if(!this.invuln){ this.cool-=dt; if(this.cool<=0){ this.cool=1.6; const a=ang; game.eBullets.push(new EnemyBullet(this.x,this.y,Math.cos(a)*160,Math.sin(a)*160,12)); } } } else if(this.type===T.WISP){ this.chargeT-=dt; if(this.chargeT<=0){ this.chargeT=rand(1.4,2.4); const ang=Math.atan2(py-this.y, px-this.x); this.vx=Math.cos(ang)*380; this.vy=Math.sin(ang)*380; } this.x+=this.vx*dt; this.y+=this.vy*dt; this.vx*=0.98; this.vy*=0.98; } else { let ang=Math.atan2(py-this.y, px-this.x); const sp=(this.type===T.JET?this.speed*1.2:this.speed); this.vx=Math.cos(ang)*sp; this.vy=Math.sin(ang)*sp; if(this.type===T.TANK){ this.vx*=0.6; this.vy*=0.6; } this.x+=this.vx*dt; this.y+=this.vy*dt; } if(this.x<-80||this.x>WORLD_W+80||this.y<-80||this.y>WORLD_H+80) this.dead=true; }
   hit(dmg,game){ if(this.invuln) return; let real=dmg; if(Math.random()<game.player.critChance){ real*=2; game.particles.push(new Particle(this.x,this.y,rand(-40,40),rand(-40,40),0.2,'#fff',3)); } this.hp-=real; SFX.beep('hit'); game.spark(this.x,this.y,(this.type===ENEMY_TYPES.BOSS)?18:8,(this.type===ENEMY_TYPES.BOSS)?'#f0f':'#0ff'); if(this.hp<=0){ this.dead=true; if(this.type===ENEMY_TYPES.SPLITTER){ const n=2+((Math.random()*2)|0); for(let i=0;i<n;i++){ const a=Math.random()*Math.PI*2; const d=18; game.enemies.push(new Enemy(ENEMY_TYPES.DRONE, this.x+Math.cos(a)*d, this.y+Math.sin(a)*d, this.level)); } } if(this.type===ENEMY_TYPES.BOSS) game._bossDownAt=performance.now(); game.onEnemyDeath(this); game.explode(this.x,this.y,(this.type===ENEMY_TYPES.BOSS)?60:30,(this.type===ENEMY_TYPES.BOSS)?'#f0f':'#0ff'); game.addScore(this.score); game.addXP(this.xp); } }
   draw(ctx){ ctx.save(); ctx.translate(this.x,this.y); let col='#0fa'; if(this.type===ENEMY_TYPES.BOSS) col='#f0f'; else if(this.type===ENEMY_TYPES.TANK) col='#0ff'; else if(this.type===ENEMY_TYPES.TURRET) col='#ff8'; else if(this.type===ENEMY_TYPES.PHASE) col=this.invuln?'#555':'#9f0'; else if(this.type===ENEMY_TYPES.WISP) col='#fa0'; else if(this.type===ENEMY_TYPES.AEGIS) col='#8ff'; ctx.shadowColor=col; ctx.shadowBlur=20; ctx.strokeStyle=col; ctx.lineWidth=2; ctx.beginPath(); if(this.type===ENEMY_TYPES.TANK){ ctx.rect(-22,-18,44,36); } else if(this.type===ENEMY_TYPES.JET){ ctx.moveTo(-16,0); ctx.lineTo(0,-18); ctx.lineTo(16,0); ctx.lineTo(0,18); ctx.closePath(); } else if(this.type===ENEMY_TYPES.BOSS){ ctx.arc(0,0,42,0,Math.PI*2); ctx.moveTo(-42,0); ctx.lineTo(42,0); ctx.moveTo(0,-42); ctx.lineTo(0,42); } else if(this.type===ENEMY_TYPES.TURRET){ ctx.arc(0,0,20,0,Math.PI*2); } else if(this.type===ENEMY_TYPES.PHASE){ ctx.arc(0,0,16,0,Math.PI*2); if(this.invuln){ ctx.moveTo(-18,0); ctx.lineTo(18,0); } } else if(this.type===ENEMY_TYPES.SPLITTER){ ctx.arc(0,0,16,0,Math.PI*2); } else if(this.type===ENEMY_TYPES.WISP){ ctx.moveTo(14,0); ctx.lineTo(-10,-8); ctx.lineTo(-10,8); ctx.closePath(); } else if(this.type===ENEMY_TYPES.AEGIS){ ctx.arc(0,0,18,0,Math.PI*2); } else { ctx.arc(0,0,16,0,Math.PI*2); } ctx.stroke(); if(this.type===ENEMY_TYPES.BOSS){ ctx.globalAlpha=0.6; ctx.beginPath(); ctx.arc(0,0,48, -Math.PI/2, -Math.PI/2 + (this.hp/this.hpMax)*Math.PI*2); ctx.stroke(); ctx.globalAlpha=1; } if(this.type===ENEMY_TYPES.AEGIS){ ctx.globalAlpha=0.35; ctx.beginPath(); ctx.arc(0,0,this.auraR||160,0,Math.PI*2); ctx.stroke(); ctx.globalAlpha=1; } ctx.restore(); ctx.shadowBlur=0; }
 }
@@ -390,10 +390,20 @@ class Game{
     this.skillPoints = 0; this.attrPoints = 0; this.attrs={armor:0,shield:0,energy:0,speed:0};
     // Entities
     this.drones=[]; this.fields=[]; this.rockets=[];
+    // Background stars
+    this.stars=[];
+    for(let i=0;i<80;i++){
+      this.stars.push({x:rand(0,WORLD_W), y:rand(0,WORLD_H), speed:rand(20,80), size:rand(1,3)});
+    }
     // Cooldowns
     this.cool={plasma:0,cluster:0,sing:0,overload:0,shutdown:0};
     this.overloadActive=false; this.overloadT=0;
     this.hasUnspent=false; this.cdMul=1; this.prevState=null;
+  }
+  reset(){
+    const fresh = new Game();
+    Object.assign(this, fresh);
+    this.state="playing";
   }
   addScore(s){ this.score+=s; this.kills++; }
   addXP(a){ this.xp+=a; while(this.xp>=this.xpNext){ this.level++; this.xp-=this.xpNext; this.xpNext = xpForLevel(this.level); this.skillPoints += 1; this.attrPoints += 5; this.hasUnspent = true; } }
@@ -439,6 +449,10 @@ class Game{
   castShutdown(){ if((this.skills['shutdown']||0)<=0) return; if(this.cool.shutdown>0) return; for(const e of this.enemies){ const dx=e.x-this.player.x, dy=e.y-this.player.y; const d=Math.hypot(dx,dy); if(d<320){ e.stunT = Math.max(e.stunT||0, 3); } } this.cool.shutdown = 20 * this.cdMul; SFX.beep('hit'); }
 
   update(dt){
+    for(const s of this.stars){
+      s.y += s.speed*dt;
+      if(s.y>WORLD_H){ s.y=0; s.x=rand(0,WORLD_W);}
+    }
     this.time+=dt;
     // state machine
     if(this.state==='menu'){
@@ -524,6 +538,8 @@ class Game{
     ctx.clearRect(0,0,WORLD_W,WORLD_H);
     ctx.fillStyle='#000';
     ctx.fillRect(0,0,WORLD_W,WORLD_H);
+    ctx.fillStyle='#fff';
+    for(const s of this.stars){ ctx.fillRect(s.x, s.y, s.size, s.size); }
     if(this.state==='menu'){
       ctx.fillStyle='#0ff';
       ctx.textAlign='center';
