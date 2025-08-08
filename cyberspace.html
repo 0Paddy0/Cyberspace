@@ -517,6 +517,43 @@ class Game{
     for(let i=this.eBullets.length-1;i>=0;i--){ const eb=this.eBullets[i]; const slow = Math.max(0.5, 1 - 0.02*(this.skills['scramble']||0)); eb.update(dt*slow); if(eb.dead){ this.eBullets.splice(i,1); continue; }
       const dx=this.player.x-eb.x, dy=this.player.y-eb.y; const rr=this.player.r+eb.r; if(dx*dx+dy*dy<=rr*rr){ this.player.hit(18,this); eb.dead=true; }
     }
+    // particles
+    for(let i=this.particles.length-1;i>=0;i--){ const p=this.particles[i]; p.update(dt); if(!p.alive()) this.particles.splice(i,1); }
+  }
+  draw(ctx){
+    ctx.clearRect(0,0,WORLD_W,WORLD_H);
+    ctx.fillStyle='#000';
+    ctx.fillRect(0,0,WORLD_W,WORLD_H);
+    if(this.state==='menu'){
+      ctx.fillStyle='#0ff';
+      ctx.textAlign='center';
+      ctx.font='48px sans-serif';
+      ctx.fillText('NEON VOID', WORLD_W/2, WORLD_H/2 - 40);
+      ctx.font='24px sans-serif';
+      ctx.fillText('Leertaste: Start', WORLD_W/2, WORLD_H/2 + 20);
+      return;
+    }
+    for(const p of this.particles) p.draw(ctx);
+    for(const f of this.fields) f.draw(ctx);
+    for(const r of this.rockets) r.draw(ctx);
+    for(const b of this.bullets) b.draw(ctx);
+    for(const eb of this.eBullets) eb.draw(ctx);
+    for(const d of this.drones) d.draw(ctx);
+    for(const e of this.enemies) e.draw(ctx);
+    this.player.draw(ctx);
+    if(this.state==='paused'){
+      ctx.fillStyle='#0ff';
+      ctx.textAlign='center';
+      ctx.font='48px sans-serif';
+      ctx.fillText('PAUSE', WORLD_W/2, WORLD_H/2);
+    } else if(this.state==='gameover'){
+      ctx.fillStyle='#f0a';
+      ctx.textAlign='center';
+      ctx.font='48px sans-serif';
+      ctx.fillText('GAME OVER', WORLD_W/2, WORLD_H/2 - 20);
+      ctx.font='24px sans-serif';
+      ctx.fillText('Leertaste: Neustart', WORLD_W/2, WORLD_H/2 + 20);
+    }
   }
 }
 
@@ -526,6 +563,9 @@ function loop(t) {
   const dt = (t - last) / 1000;
   last = t;
   game.update(dt);
+  game.draw(ctx);
+  VCTX.imageSmoothingEnabled = false;
+  VCTX.drawImage(world,0,0,VIEW.width,VIEW.height);
   requestAnimationFrame(loop);
 }
 requestAnimationFrame(loop);
