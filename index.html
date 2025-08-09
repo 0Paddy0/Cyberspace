@@ -14,10 +14,12 @@
       --neon-lime:#00ff85;
       --neon-yellow:#ffd400;
       --hud:#00e5ff;
+      --gap:8px;
     }
     *{box-sizing:border-box}
-    html,body{margin:0;padding:0;height:100%;background:#000;overscroll-behavior:none;color:#cfe9ff;font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Inter,Arial;overflow:hidden}
-    #app{position:fixed;inset:0;padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)}
+    html,body{margin:0;padding:0;height:100%;background:#000;overscroll-behavior:none;}
+    body{overflow:hidden;color:#cfe9ff;font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Inter,Arial;-webkit-touch-callout:none;-webkit-user-select:none;-webkit-text-size-adjust:100%;}
+    #app{position:fixed;inset:0;padding:env(safe-area-inset-top) env(safe-area-inset-right) calc(env(safe-area-inset-bottom)) env(safe-area-inset-left)}
     #wrap{position:fixed;inset:0;display:grid;place-items:center}
     canvas{display:block;touch-action:none}
     canvas#view{image-rendering:pixelated;background:#000;box-shadow:0 0 40px #05f4, 0 0 120px #0af2 inset;border:1px solid #0af7;border-radius:12px}
@@ -38,11 +40,27 @@
     .top-right{position:fixed; top:10px; right:12px; font-size:12px; color:#aaf; text-shadow:0 0 8px #0ff8}
 
     /* minimal spawn tester ui */
-    #controls{position:fixed;left:0;right:0;bottom:calc(8px + env(safe-area-inset-bottom));display:flex;gap:8px;justify-content:center;z-index:10;flex-wrap:wrap;align-items:center}
+    #controls{
+      position:fixed;left:0;right:0;
+      bottom:calc(var(--gap) + env(safe-area-inset-bottom));
+      display:flex;gap:var(--gap);justify-content:center;flex-wrap:wrap;
+      z-index:10;
+    }
     #controls label{margin-right:4px}
-    #status{margin-top:8px}
+    #controls select,#controls input,#controls button{
+      font-size:16px;line-height:1.2;padding:6px 10px;border-radius:10px;
+    }
+    #status{position:fixed;left:var(--gap);right:var(--gap);bottom:calc(56px + env(safe-area-inset-bottom));z-index:10;color:#9cf;}
     #status.error{color:red}
+    .desktop-only{display:block;}
+    .mobile-only{display:none;}
     #out{margin:8px;padding:8px;max-height:240px;overflow:auto;border:1px solid #0ff4;background:#0004}
+
+    @media (max-width: 600px){
+      #controls{gap:6px;}
+      #legend,.desktop-only{display:none;}
+      .mobile-only{display:block;}
+    }
   </style>
 </head>
 <body>
@@ -81,12 +99,12 @@
       </div>
     </div>
 
-    <div class="hud-hint">← → ↑ ↓: Bewegen (auch Zielen) • Leertaste: Feuer • Q/E: Plasma/Cluster • R: Singularität • G: Drohnen-Überladung • Z: Shutdown • K: Skillbaum • P: Pause • M: Mute</div>
+    <div id="legend" class="hud-hint desktop-only">← → ↑ ↓: Bewegen (auch Zielen) • Leertaste: Feuer • Q/E: Plasma/Cluster • R: Singularität • G: Drohnen-Überladung • Z: Shutdown • K: Skillbaum • P: Pause • M: Mute</div>
     <div class="top-right" id="info"></div>
 
     <div id="controls">
-      <label>Zone <select id="zone"></select></label>
-      <label>Difficulty <select id="difficulty"></select></label>
+      <label>Zone <select id="zone" style="min-width:110px"></select></label>
+      <label>Diff. <select id="difficulty" style="min-width:110px"></select></label>
       <label>Seed <input id="seed" value="demo"></label>
       <button id="spawn">Spawn Pack</button>
       <button id="spawnToWorld">Spawn To World</button>
