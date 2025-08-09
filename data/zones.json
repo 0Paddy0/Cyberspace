@@ -12,7 +12,14 @@
         {"monster_id": "scavenger_drone", "weight": 5},
         {"monster_id": "rust_raider", "weight": 3},
         {"monster_id": "needle_turret", "weight": 2}
-      ]
+      ],
+      "tier_probs": { "normal": 0.70, "champion": 0.20, "unique": 0.08, "boss": 0.02 },
+      "difficulty_multipliers": {
+        "hp_mult": 1.10,
+        "dmg_mult": 1.05,
+        "def_mult": 1.00,
+        "res_bonus": { "laser": 10, "plasma": 0, "ion": 0, "kinetic": 0 }
+      }
     },
     {
       "id": "chaos_nebula",

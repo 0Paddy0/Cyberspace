@@ -21,6 +21,32 @@ import {
 const RES_KEYS = ['laser', 'plasma', 'ion', 'kinetic'];
 
 /**
+ * Merge difficulty multipliers with optional overrides.
+ *
+ * @param {Difficulty} diff
+ * @param {{hp_mult?: number, dmg_mult?: number, def_mult?: number, res_bonus?: Record<string, number>}|undefined} o
+ * @returns {Difficulty}
+ */
+function mergeDifficulty(diff, o) {
+  const out = {
+    ...diff,
+    res_bonus: { ...(diff.res_bonus || {}) },
+  };
+  if (!o || typeof o !== 'object') return out;
+  if (typeof o.hp_mult === 'number') out.hp_mult *= o.hp_mult;
+  if (typeof o.dmg_mult === 'number') out.dmg_mult *= o.dmg_mult;
+  if (typeof o.def_mult === 'number') out.def_mult *= o.def_mult;
+  if (o.res_bonus && typeof o.res_bonus === 'object') {
+    for (const key of RES_KEYS) {
+      if (typeof o.res_bonus[key] === 'number') {
+        out.res_bonus[key] = (out.res_bonus[key] || 0) + o.res_bonus[key];
+      }
+    }
+  }
+  return out;
+}
+
+/**
  * Spawn a pack of monsters for a zone and difficulty.
  *
  * @param {{zoneId: string, difficulty: string, seed?: string|number, debug?: boolean}} params
@@ -62,6 +88,8 @@ export async function spawnPack({ zoneId, difficulty, seed, debug = false }) {
     throw new Error(`spawnPack: difficulty '${difficulty}' not found`);
   }
 
+  const effDiff = mergeDifficulty(diff, zone.difficulty_multipliers);
+
   const affixPool = (diff.affix_pool || [])
     .map((id) => data.affixes.find((a) => a.id === id))
     .filter(Boolean);
@@ -70,7 +98,7 @@ export async function spawnPack({ zoneId, difficulty, seed, debug = false }) {
     monster,
     tierId,
     zoneLevel,
-    diff,
+    effDiff,
     data,
     rng,
     { affixPool }
@@ -95,7 +123,7 @@ export async function spawnPack({ zoneId, difficulty, seed, debug = false }) {
         monster,
         'normal',
         zoneLevel,
-        diff,
+        effDiff,
         data,
         rng,
         extra
@@ -105,8 +133,19 @@ export async function spawnPack({ zoneId, difficulty, seed, debug = false }) {
   }
 
   if (debug) {
-    const affixIds = leader.affixes.map((a) => a.id);
-    console.debug('[spawnPack]', { zoneLevel, monsterId: monster.id, tierId, affixIds });
+    const effDiffMults = {
+      hp: effDiff.hp_mult,
+      dmg: effDiff.dmg_mult,
+      def: effDiff.def_mult,
+      res_bonus: effDiff.res_bonus,
+    };
+    console.debug('[spawnPack]', {
+      zoneId,
+      tierId,
+      zoneLevel,
+      effDiffMults,
+      override: !!zone.tier_probs || !!zone.difficulty_multipliers,
+    });
   }
 
   return pack;
