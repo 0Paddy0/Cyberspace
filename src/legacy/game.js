@@ -493,6 +493,7 @@ class Game{
     for(const eb of this.eBullets) eb.draw(ctx);
     for(const d of this.drones) d.draw(ctx);
     for(const e of this.enemies) e.draw(ctx);
+    for(const w of legacyWorld.entities) drawShape(ctx,w);
     this.player.draw(ctx);
     if(this.state==='paused'){
       ctx.fillStyle='#0ff';
@@ -524,3 +525,122 @@ function loop(t) {
 requestAnimationFrame(loop);
 
 }
+
+/** @typedef {import('../types').UnitInstance} UnitInstance */
+
+const legacyWorld = {
+  width: 960,
+  height: 540,
+  centerX: 480,
+  centerY: 270,
+  entities: []
+};
+
+let lastSpawnCount = 0;
+
+function randomOnRing(cx, cy, rMin, rMax) {
+  const ang = Math.random() * Math.PI * 2;
+  const r = rMin + Math.random() * (rMax - rMin);
+  return { x: cx + Math.cos(ang) * r, y: cy + Math.sin(ang) * r };
+}
+
+function placeWithoutOverlap(existing, minDist) {
+  for (let i = 0; i < 30; i++) {
+    const p = randomOnRing(legacyWorld.centerX, legacyWorld.centerY, 200, 280);
+    let ok = true;
+    for (const e of existing) {
+      const dx = e.x - p.x;
+      const dy = e.y - p.y;
+      if (dx * dx + dy * dy < minDist * minDist) { ok = false; break; }
+    }
+    if (ok) return p;
+  }
+  return null;
+}
+
+function drawShape(ctx, entity) {
+  const tier = (entity.tier || 'normal').toLowerCase();
+  const colors = { normal: '#aaa', champion: '#4af', unique: '#fa4', boss: '#f44' };
+  ctx.save();
+  ctx.translate(entity.x, entity.y);
+  ctx.strokeStyle = colors[tier] || '#aaa';
+  ctx.fillStyle = colors[tier] || '#aaa';
+  ctx.lineWidth = tier === 'champion' ? 3 : 1.5;
+  ctx.beginPath();
+  if (tier === 'boss') {
+    const r = 12;
+    for (let i = 0; i < 10; i++) {
+      const ang = (Math.PI / 5) * i;
+      const rad = i % 2 === 0 ? r : r / 2;
+      ctx.lineTo(Math.cos(ang) * rad, Math.sin(ang) * rad);
+    }
+    ctx.closePath();
+    ctx.stroke();
+  } else if (tier === 'unique') {
+    const r = 10;
+    for (let i = 0; i < 6; i++) {
+      const ang = (Math.PI / 3) * i;
+      ctx.lineTo(Math.cos(ang) * r, Math.sin(ang) * r);
+    }
+    ctx.closePath();
+    ctx.stroke();
+  } else {
+    const r = tier === 'champion' ? 8 : 6;
+    ctx.arc(0, 0, r, 0, Math.PI * 2);
+    if (tier === 'champion') ctx.stroke(); else ctx.fill();
+  }
+  ctx.restore();
+  if (entity.affixes && entity.affixes.length) {
+    ctx.save();
+    ctx.fillStyle = '#fff';
+    ctx.font = '10px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText(entity.affixes.map(a => a.id || a).join(','), entity.x, entity.y - 14);
+    ctx.restore();
+  }
+}
+
+/**
+ * Add UnitInstances to the legacy world.
+ * @param {UnitInstance[]} units
+ * @returns {Object[]} entities actually added
+ */
+export function addUnitsToWorld(units) {
+  if (!Array.isArray(units) || units.length === 0) {
+    lastSpawnCount = 0;
+    return [];
+  }
+  const added = [];
+  for (const u of units) {
+    const pos = placeWithoutOverlap(legacyWorld.entities, 24);
+    if (!pos) continue;
+    const entity = {
+      id: u.id,
+      type: 'enemy',
+      tier: u.tier,
+      hp: u.stats?.hp ?? 0,
+      dps: u.stats?.dps ?? 0,
+      def: u.stats?.def ?? 0,
+      resists: u.resists || {},
+      ai: u.ai,
+      lootTable: u.lootTable,
+      level: u.level,
+      affixes: u.affixes,
+      x: pos.x,
+      y: pos.y
+    };
+    legacyWorld.entities.push(entity);
+    added.push(entity);
+  }
+  lastSpawnCount = added.length;
+  return added;
+}
+
+export function getWorldSummary() {
+  const enemies = legacyWorld.entities.length;
+  const avgEnemyLevel = enemies
+    ? legacyWorld.entities.reduce((s, e) => s + (e.level || 0), 0) / enemies
+    : 0;
+  return { enemies, lastSpawnCount, avgEnemyLevel };
+}
+

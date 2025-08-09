@@ -1,6 +1,6 @@
 import { loadAllData } from './dataLoader.js';
 import { spawnPack } from './spawn.js';
-import { initLegacyGame, addUnitsToWorld } from './legacy/game.js';
+import { initLegacyGame, addUnitsToWorld, getWorldSummary } from './legacy/game.js';
 
 const rootEl = document.getElementById('app');
 initLegacyGame(rootEl);
@@ -67,10 +67,12 @@ async function main() {
   });
 
   spawnWorldBtn.addEventListener('click', () => {
-    if (lastSpawn) {
-      addUnitsToWorld(lastSpawn);
+    if (Array.isArray(lastSpawn) && lastSpawn.length) {
+      const added = addUnitsToWorld(lastSpawn);
+      const summary = getWorldSummary();
+      setStatus(`Spawned to world: ${added.length} entities • Enemies total: ${summary.enemies}`);
     } else {
-      setStatus("Bitte zuerst 'Spawn Pack' ausführen.");
+      setStatus("Bitte zuerst 'Spawn Pack' ausführen.", true);
     }
   });
 }
