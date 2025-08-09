@@ -23,10 +23,10 @@ const RES_KEYS = ['laser', 'plasma', 'ion', 'kinetic'];
 /**
  * Spawn a pack of monsters for a zone and difficulty.
  *
- * @param {{zoneId: string, difficulty: string, seed?: string|number}} params
+ * @param {{zoneId: string, difficulty: string, seed?: string|number, debug?: boolean}} params
  * @returns {Promise<UnitInstance[]>}
  */
-export async function spawnPack({ zoneId, difficulty, seed }) {
+export async function spawnPack({ zoneId, difficulty, seed, debug = false }) {
   const data = await loadAllData();
   const rng = createRNG(seed ?? 'default');
 
@@ -102,6 +102,11 @@ export async function spawnPack({ zoneId, difficulty, seed }) {
       );
       pack.push(minion);
     }
+  }
+
+  if (debug) {
+    const affixIds = leader.affixes.map((a) => a.id);
+    console.debug('[spawnPack]', { zoneLevel, monsterId: monster.id, tierId, affixIds });
   }
 
   return pack;
@@ -198,7 +203,7 @@ export function rollAffixes(affixPool, count, rng) {
     c = 0;
   }
   if (c > pool.length) {
-    console.warn('rollAffixes: not enough affixes in pool, reducing count');
+    console.warn(`rollAffixes: clamped affix_count ${c} to pool size ${pool.length}`);
     c = pool.length;
   }
   /** @type {AffixInstance[]} */
