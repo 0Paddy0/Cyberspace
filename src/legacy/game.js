@@ -526,6 +526,19 @@ requestAnimationFrame(loop);
 
 }
 
+export function fitCanvasToScreen(canvas) {
+  const dpr = Math.max(1, Math.min(window.devicePixelRatio || 1, 3)); // DPR begrenzen für iPhone
+  const w = Math.floor(window.innerWidth);
+  const h = Math.floor(window.innerHeight);
+  canvas.style.width = w + 'px';
+  canvas.style.height = h + 'px';
+  canvas.width  = Math.floor(w * dpr);
+  canvas.height = Math.floor(h * dpr);
+  const ctx = canvas.getContext('2d');
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0); // Zeichnen in CSS-Pixeln
+  return { dpr, w, h, ctx };
+}
+
 /** @typedef {import('../types').UnitInstance} UnitInstance */
 
 const legacyWorld = {

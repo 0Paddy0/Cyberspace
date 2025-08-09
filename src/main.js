@@ -1,9 +1,20 @@
 import { loadAllData } from './dataLoader.js';
 import { spawnPack } from './spawn.js';
-import { initLegacyGame, addUnitsToWorld, getWorldSummary } from './legacy/game.js';
+import { initLegacyGame, addUnitsToWorld, getWorldSummary, fitCanvasToScreen } from './legacy/game.js';
 
 const rootEl = document.getElementById('app');
 initLegacyGame(rootEl);
+
+const canvas = document.querySelector('#view');
+function onResize(){ fitCanvasToScreen(canvas); }
+window.addEventListener('resize', onResize, { passive:true });
+onResize();
+
+// Pointer-Events statt separater Mouse/Touch:
+canvas.addEventListener('pointerdown', e => { e.preventDefault(); /* start handling */ });
+canvas.addEventListener('pointermove', e => { e.preventDefault(); /* move handling */ });
+canvas.addEventListener('pointerup', e => { /* end handling */ });
+canvas.addEventListener('pointercancel', e => { /* cancel handling */ });
 
 let lastSpawn = null;
 
