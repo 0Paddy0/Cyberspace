@@ -14,6 +14,12 @@ Dieses Projekt demonstriert eine modulare Spawn-Pipeline für eine ARPG-artige S
 - `index.html` mit einem lokalen HTTP-Server öffnen.
 - In VS Code: Erweiterung **Live Server** installieren, `index.html` rechtsklicken → "Open with Live Server".
 
+## GitHub Pages
+- Nach dem ersten erfolgreichen Run ist die Seite hier erreichbar:
+  https://<USER>.github.io/<REPO>/
+- Bei 404: 1–2 Minuten warten oder Pages in Settings prüfen.
+- Wenn Assets nicht laden: <base>-Tag prüfen (siehe Workflow-Schritt "Inject base path").
+
 ## Datenformate (Kurzreferenz)
 - `difficulties.json`: `hp_mult`, `dmg_mult`, `def_mult`, `res_bonus`, `affix_pool`
 - `zones.json`: `level_range` je Difficulty, `spawn_table`, optionale `tier_probs`, `difficulty_multipliers`
