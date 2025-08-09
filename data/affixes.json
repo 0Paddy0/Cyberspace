@@ -1,1 +1,17 @@
-[]
+{
+  "affixes": [
+    {
+      "id": "speed",
+      "mods": {"move_speed_pct": 30, "attack_speed_pct": 20}
+    },
+    {"id": "strong", "mods": {"dps_mult": 1.25, "knockback_chance": 10}},
+    {"id": "extra_fast", "mods": {"move_speed_pct": 60}},
+    {"id": "stone_skin", "mods": {"def_mult": 1.5, "kinetic_res_add": 30}},
+    {"id": "mana_burn", "mods": {"mana_burn_on_hit": 10}},
+    {
+      "id": "spectral_hit",
+      "mods": {"elemental_bonus": ["laser", "plasma", "ion"], "bonus_pct": 25}
+    },
+    {"id": "cursed", "mods": {"cast_on_engage": "curse_weaken"}}
+  ]
+}

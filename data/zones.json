@@ -1,1 +1,32 @@
-[]
+{
+  "zones": [
+    {
+      "id": "outer_rim",
+      "name": "Outer Rim",
+      "level_range": {
+        "normal": [1, 3],
+        "nightmare": [36, 39],
+        "hell": [67, 70]
+      },
+      "spawn_table": [
+        {"monster_id": "scavenger_drone", "weight": 5},
+        {"monster_id": "rust_raider", "weight": 3},
+        {"monster_id": "needle_turret", "weight": 2}
+      ]
+    },
+    {
+      "id": "chaos_nebula",
+      "name": "Chaos Nebula",
+      "level_range": {
+        "normal": [26, 28],
+        "nightmare": [55, 58],
+        "hell": [84, 85]
+      },
+      "spawn_table": [
+        {"monster_id": "void_knight", "weight": 4},
+        {"monster_id": "doom_cruiser", "weight": 4},
+        {"monster_id": "venom_wyrm", "weight": 2}
+      ]
+    }
+  ]
+}

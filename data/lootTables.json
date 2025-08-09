@@ -1,1 +1,24 @@
-[]
+{
+  "loot_tables": [
+    {
+      "id": "common_creep",
+      "rolls": 1,
+      "entries": [
+        {"group": "credits", "weight": 60, "amount": [8, 20]},
+        {"group": "battery", "weight": 25, "quality": ["minor", "normal"]},
+        {"group": "component_white", "weight": 12},
+        {"group": "component_blue", "weight": 3}
+      ]
+    },
+    {
+      "id": "elite_creep",
+      "rolls": 2,
+      "entries": [
+        {"group": "credits", "weight": 40, "amount": [20, 60]},
+        {"group": "component_blue", "weight": 45},
+        {"group": "component_yellow", "weight": 12},
+        {"group": "named_token", "weight": 3}
+      ]
+    }
+  ]
+}

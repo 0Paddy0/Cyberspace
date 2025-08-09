@@ -1,1 +1,44 @@
-[]
+{
+  "difficulties": [
+    {
+      "id": "normal",
+      "hp_mult": 1.0,
+      "dmg_mult": 1.0,
+      "def_mult": 1.0,
+      "res_bonus": {"laser": 0, "plasma": 0, "ion": 0, "kinetic": 0},
+      "affix_pool": ["speed", "strong", "cursed", "mana_burn"]
+    },
+    {
+      "id": "nightmare",
+      "hp_mult": 2.0,
+      "dmg_mult": 1.6,
+      "def_mult": 1.5,
+      "res_bonus": {"laser": 20, "plasma": 20, "ion": 20, "kinetic": 10},
+      "affix_pool": [
+        "speed",
+        "strong",
+        "cursed",
+        "mana_burn",
+        "extra_fast",
+        "stone_skin"
+      ]
+    },
+    {
+      "id": "hell",
+      "hp_mult": 3.2,
+      "dmg_mult": 2.3,
+      "def_mult": 2.4,
+      "res_bonus": {"laser": 50, "plasma": 50, "ion": 50, "kinetic": 25},
+      "affix_pool": [
+        "speed",
+        "strong",
+        "cursed",
+        "mana_burn",
+        "extra_fast",
+        "stone_skin",
+        "spectral_hit"
+      ]
+    }
+  ]
+}
+
