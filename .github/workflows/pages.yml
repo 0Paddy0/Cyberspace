@@ -1,0 +1,47 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # Optional: Base-Path fix für Unterordner-Repos
+      - name: Inject base path (optional)
+        if: ${{ always() }}
+        run: |
+          REPO="${{ github.event.repository.name }}"
+          # Nur wenn index.html existiert und kein <base> Tag gesetzt ist:
+          if [ -f "index.html" ] && ! grep -qi "<base " index.html; then
+            sed -i 's#<head>#<head><base href="/'"$REPO"'/">#' index.html || true
+          fi
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: .
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
