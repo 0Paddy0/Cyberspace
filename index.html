@@ -2,7 +2,9 @@
 <html lang="de">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" />
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <title>Neon Void — Cyberpunk Shooter</title>
   <style>
     :root{
@@ -14,8 +16,10 @@
       --hud:#00e5ff;
     }
     *{box-sizing:border-box}
-    html,body{height:100%;margin:0;background:radial-gradient(1200px 800px at 70% 20%, #0f1420 0%, #0b0e14 50%, #05070b 100%) fixed; color:#cfe9ff; font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Inter,Arial; overflow:hidden}
+    html,body{margin:0;padding:0;height:100%;background:#000;overscroll-behavior:none;color:#cfe9ff;font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Inter,Arial;overflow:hidden}
+    #app{position:fixed;inset:0;padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)}
     #wrap{position:fixed;inset:0;display:grid;place-items:center}
+    canvas{display:block;touch-action:none}
     canvas#view{image-rendering:pixelated;background:#000;box-shadow:0 0 40px #05f4, 0 0 120px #0af2 inset;border:1px solid #0af7;border-radius:12px}
     .scanlines{pointer-events:none;position:fixed;inset:0;background:linear-gradient(rgba(255,255,255,0.04),rgba(0,0,0,0.08));mix-blend-mode:overlay;background-size:100% 2px;opacity:.25}
 
@@ -34,7 +38,7 @@
     .top-right{position:fixed; top:10px; right:12px; font-size:12px; color:#aaf; text-shadow:0 0 8px #0ff8}
 
     /* minimal spawn tester ui */
-    #controls{margin:8px;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+    #controls{position:fixed;left:0;right:0;bottom:calc(8px + env(safe-area-inset-bottom));display:flex;gap:8px;justify-content:center;z-index:10;flex-wrap:wrap;align-items:center}
     #controls label{margin-right:4px}
     #status{margin-top:8px}
     #status.error{color:red}
