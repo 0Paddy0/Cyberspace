@@ -197,6 +197,54 @@ export async function loadAllData() {
       assertKey(s, 'monster_id', sc);
       assertKey(s, 'weight', sc);
     });
+
+    if (z.tier_probs !== undefined) {
+      const tp = z.tier_probs;
+      const tpc = c.concat('tier_probs');
+      if (tp === null || typeof tp !== 'object' || Array.isArray(tp)) {
+        throw fail(tpc, `must be object, got: ${JSON.stringify(tp)}`);
+      }
+      const keys = ['normal', 'champion', 'unique', 'boss'];
+      keys.forEach((k) => {
+        const v = tp[k];
+        if (typeof v !== 'number' || v < 0) {
+          throw fail(tpc.concat(k), `invalid weight '${v}'`);
+        }
+      });
+    }
+
+    if (z.difficulty_multipliers !== undefined) {
+      const dm = z.difficulty_multipliers;
+      const dmc = c.concat('difficulty_multipliers');
+      if (dm === null || typeof dm !== 'object' || Array.isArray(dm)) {
+        throw fail(dmc, `must be object, got: ${JSON.stringify(dm)}`);
+      }
+      ['hp_mult', 'dmg_mult', 'def_mult'].forEach((k) => {
+        if (k in dm) {
+          const v = dm[k];
+          if (!(typeof v === 'number' && v > 0)) {
+            throw fail(dmc.concat(k), `must be > 0, got: ${JSON.stringify(v)}`);
+          }
+        }
+      });
+      if (dm.res_bonus !== undefined) {
+        const rb = dm.res_bonus;
+        const rbc = dmc.concat('res_bonus');
+        if (rb === null || typeof rb !== 'object' || Array.isArray(rb)) {
+          throw fail(rbc, `must be object, got: ${JSON.stringify(rb)}`);
+        }
+        const RES_KEYS = ['laser', 'plasma', 'ion', 'kinetic'];
+        Object.keys(rb).forEach((k) => {
+          if (!RES_KEYS.includes(k)) {
+            throw fail(rbc.concat(k), `invalid key '${k}'`);
+          }
+          const v = rb[k];
+          if (typeof v !== 'number') {
+            throw fail(rbc.concat(k), `must be number, got: ${JSON.stringify(v)}`);
+          }
+        });
+      }
+    }
   });
 
   // Loot tables

@@ -12,12 +12,20 @@ export interface RNG {
   pickWeighted<T extends WeightedItem>(list: T[]): T | undefined;
 }
 
+export interface ResistMap {
+  laser?: number;
+  plasma?: number;
+  ion?: number;
+  kinetic?: number;
+  [key: string]: number | undefined;
+}
+
 export interface Difficulty {
   id: string;
   hp_mult: number;
   dmg_mult: number;
   def_mult: number;
-  res_bonus: number;
+  res_bonus: ResistMap;
   affix_pool: string[];
 }
 
@@ -37,6 +45,13 @@ export interface Zone {
   name: string;
   level_range: ZoneLevelRange;
   spawn_table: ZoneSpawnEntry[];
+  tier_probs?: Record<string, number>;
+  difficulty_multipliers?: {
+    hp_mult?: number;
+    dmg_mult?: number;
+    def_mult?: number;
+    res_bonus?: ResistMap;
+  };
 }
 
 export interface Monster {
