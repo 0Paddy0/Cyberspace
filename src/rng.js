@@ -5,16 +5,7 @@
  * @returns {import('./types').RNG}
  */
 export function createRNG(seed) {
-  let s;
-  if (typeof seed === 'string') {
-    s = hashString(seed);
-  } else {
-    s = Number(seed) || 0;
-  }
-
-  s = normalizeSeed(s);
-
-  let state = s;
+  let state = hashSeed(seed);
 
   /**
    * Generate the next random float between 0 (inclusive) and 1 (exclusive).
@@ -42,25 +33,43 @@ export function createRNG(seed) {
         min = max;
         max = tmp;
       }
+      if (min === max) return min;
 
       return Math.floor(next() * (max - min)) + min;
     },
     pickWeighted(list) {
+      if (!Array.isArray(list) || list.length === 0) {
+        throw new Error('[rng] pickWeighted: empty list');
+      }
       let total = 0;
-      for (const item of list || []) {
-        const w = typeof item.weight === 'number' && item.weight > 0 ? item.weight : 0;
+      for (let i = 0; i < list.length; i++) {
+        const w = list[i].weight;
+        if (typeof w !== 'number' || Number.isNaN(w) || w < 0) {
+          throw new Error(`[rng] pickWeighted: invalid weight at index ${i}`);
+        }
         total += w;
       }
-      if (total <= 0) return undefined;
+      if (total <= 0) {
+        throw new Error('[rng] pickWeighted: total weight <= 0');
+      }
       let r = next() * total;
-      for (const item of list) {
-        const w = typeof item.weight === 'number' && item.weight > 0 ? item.weight : 0;
-        if (r < w) return item;
+      for (let i = 0; i < list.length; i++) {
+        const w = list[i].weight;
+        if (r < w) return list[i];
         r -= w;
       }
       return list[list.length - 1];
     },
   };
+}
+
+/**
+ * Hash a string or number into a 32bit seed.
+ * @param {string|number} v
+ * @returns {number}
+ */
+export function hashSeed(v) {
+  return typeof v === 'string' ? hashString(v) : normalizeSeed(Number(v) || 0);
 }
 
 /**

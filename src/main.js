@@ -7,11 +7,16 @@ initLegacyGame(rootEl);
 
 let lastSpawn = null;
 
+/**
+ * Update the status element.
+ * @param {string} msg
+ * @param {boolean} [isError=false]
+ */
 function setStatus(msg, isError = false) {
   const el = document.getElementById('status');
   if (el) {
     el.textContent = msg;
-    el.style.color = isError ? 'red' : '';
+    el.classList.toggle('error', isError);
   }
 }
 
@@ -51,6 +56,7 @@ async function main() {
     const difficulty = diffSel.value;
     const seed = seedInput.value;
     const t0 = performance.now();
+    lastSpawn = null;
     try {
       const res = await spawnPack({ zoneId, difficulty, seed });
       lastSpawn = Array.isArray(res) ? res : res.pack;
@@ -59,6 +65,8 @@ async function main() {
       const ms = Math.round(performance.now() - t0);
       setStatus(`Spawn OK • ZoneLevel=${zoneLevel} • Seed="${seed}" • ${ms}ms`);
     } catch (err) {
+      lastSpawn = null;
+      console.error(err);
       setStatus(err.message, true);
     } finally {
       spawnBtn.disabled = false;

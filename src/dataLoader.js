@@ -11,13 +11,38 @@ function deepFreeze(obj) {
   return obj;
 }
 
+/**
+ * Format a context path for error messages.
+ * @param {Array<string|number>} ctxParts
+ * @returns {string}
+ */
+export function formatPath(ctxParts) {
+  if (!ctxParts.length) return '';
+  const [file, ...rest] = ctxParts;
+  let out = `[${file}]`;
+  if (rest.length) {
+    out += ' ';
+    let first = true;
+    for (const part of rest) {
+      if (typeof part === 'number') {
+        out += `[${part}]`;
+      } else {
+        if (!first) out += '.';
+        out += part;
+      }
+      first = false;
+    }
+  }
+  return out;
+}
+
 function fail(ctx, message) {
-  return new Error(`${ctx} ${message}`);
+  return new Error(`${formatPath(ctx)} ${message}`);
 }
 
 function assertKey(obj, key, ctx) {
   if (!(key in obj)) {
-    throw fail(ctx, `missing key '${key}'`);
+    throw fail(ctx.concat(key), `missing key '${key}'`);
   }
   return obj[key];
 }
@@ -79,22 +104,22 @@ export async function loadAllData() {
   ]);
 
   // Difficulties
-  assertArray(difficulties, '[difficulties.json]');
+  assertArray(difficulties, ['difficulties.json', 'difficulties']);
   difficulties.forEach((d, i) => {
-    const c = `[difficulties.json] difficulty[${i}]`;
+    const c = ['difficulties.json', 'difficulties', i];
     assertKey(d, 'id', c);
     assertKey(d, 'hp_mult', c);
     assertKey(d, 'dmg_mult', c);
     assertKey(d, 'def_mult', c);
     assertKey(d, 'res_bonus', c);
     const pool = assertKey(d, 'affix_pool', c);
-    assertArray(pool, `${c}.affix_pool`);
+    assertArray(pool, c.concat('affix_pool'));
   });
 
   // Monsters
-  assertArray(monsters, '[monsters.json]');
+  assertArray(monsters, ['monsters.json', 'monsters']);
   monsters.forEach((m, i) => {
-    const c = `[monsters.json] monster[${i}]`;
+    const c = ['monsters.json', 'monsters', i];
     assertKey(m, 'id', c);
     assertKey(m, 'role', c);
     assertKey(m, 'base_level_offset', c);
@@ -106,20 +131,20 @@ export async function loadAllData() {
   });
 
   // Affixes
-  assertArray(affixes, '[affixes.json]');
+  assertArray(affixes, ['affixes.json', 'affixes']);
   affixes.forEach((a, i) => {
-    const c = `[affixes.json] affix[${i}]`;
+    const c = ['affixes.json', 'affixes', i];
     assertKey(a, 'id', c);
     const mods = assertKey(a, 'mods', c);
     if (mods === null || typeof mods !== 'object' || Array.isArray(mods)) {
-      throw fail('[affixes.json]', `affix[${i}].mods must be object, got: ${JSON.stringify(mods)}`);
+      throw fail(c.concat('mods'), `must be object, got: ${JSON.stringify(mods)}`);
     }
   });
 
   // Tiers
-  assertArray(tiers, '[tiers.json]');
+  assertArray(tiers, ['tiers.json', 'tiers']);
   tiers.forEach((t, i) => {
-    const c = `[tiers.json] tier[${i}]`;
+    const c = ['tiers.json', 'tiers', i];
     assertKey(t, 'id', c);
     assertKey(t, 'level_bonus', c);
     assertKey(t, 'hp_mult', c);
@@ -127,20 +152,20 @@ export async function loadAllData() {
     assertKey(t, 'def_mult', c);
     const ac = assertKey(t, 'affix_count', c);
     if (!Array.isArray(ac) || ac.length !== 2) {
-      throw fail('[tiers.json]', `tier[${i}].affix_count must be [min,max] array, got: ${JSON.stringify(ac)}`);
+      throw fail(c.concat('affix_count'), `must be [min,max] array, got: ${JSON.stringify(ac)}`);
     }
     if (ac[0] > ac[1]) {
-      throw fail('[tiers.json]', `tier[${i}].affix_count invalid: ${ac[0]} > ${ac[1]}`);
+      throw fail(c.concat('affix_count'), `invalid: ${ac[0]} > ${ac[1]}`);
     }
     if (t.minions !== undefined) {
-      const mc = `[tiers.json] tier[${i}].minions`;
+      const mc = c.concat('minions');
       const minions = assertKey(t, 'minions', c);
       const cr = assertKey(minions, 'count_range', mc);
       if (!Array.isArray(cr) || cr.length !== 2) {
-        throw fail('[tiers.json]', `tier[${i}].minions.count_range must be [min,max] array, got: ${JSON.stringify(cr)}`);
+        throw fail(mc.concat('count_range'), `must be [min,max] array, got: ${JSON.stringify(cr)}`);
       }
       if (cr[0] > cr[1]) {
-        throw fail('[tiers.json]', `tier[${i}].minions.count_range invalid: ${cr[0]} > ${cr[1]}`);
+        throw fail(mc.concat('count_range'), `invalid: ${cr[0]} > ${cr[1]}`);
       }
       assertKey(minions, 'level_bonus', mc);
       assertKey(minions, 'hp_mult', mc);
@@ -150,40 +175,40 @@ export async function loadAllData() {
   });
 
   // Zones
-  assertArray(zones, '[zones.json]');
+  assertArray(zones, ['zones.json', 'zones']);
   zones.forEach((z, i) => {
-    const c = `[zones.json] zone[${i}]`;
+    const c = ['zones.json', 'zones', i];
     assertKey(z, 'id', c);
     assertKey(z, 'name', c);
     const lr = assertKey(z, 'level_range', c);
     ['normal', 'nightmare', 'hell'].forEach((d) => {
-      const r = assertKey(lr, d, `${c}.level_range`);
+      const r = assertKey(lr, d, c.concat('level_range'));
       if (!Array.isArray(r) || r.length !== 2) {
-        throw fail('[zones.json]', `zone[${i}].level_range.${d} must be [min,max] array, got: ${JSON.stringify(r)}`);
+        throw fail(c.concat('level_range', d), `must be [min,max] array, got: ${JSON.stringify(r)}`);
       }
       if (r[0] > r[1]) {
-        throw fail('[zones.json]', `zone[${i}].level_range.${d} invalid: ${r[0]} > ${r[1]}`);
+        throw fail(c.concat('level_range', d), `invalid: ${r[0]} > ${r[1]}`);
       }
     });
     const st = assertKey(z, 'spawn_table', c);
-    assertArray(st, `${c}.spawn_table`);
+    assertArray(st, c.concat('spawn_table'));
     st.forEach((s, j) => {
-      const sc = `[zones.json] zone[${i}].spawn_table[${j}]`;
+      const sc = c.concat('spawn_table', j);
       assertKey(s, 'monster_id', sc);
       assertKey(s, 'weight', sc);
     });
   });
 
   // Loot tables
-  assertArray(loot_tables, '[lootTables.json]');
+  assertArray(loot_tables, ['lootTables.json', 'tables']);
   loot_tables.forEach((t, i) => {
-    const c = `[lootTables.json] table[${i}]`;
+    const c = ['lootTables.json', 'tables', i];
     assertKey(t, 'id', c);
     assertKey(t, 'rolls', c);
     const entries = assertKey(t, 'entries', c);
-    assertArray(entries, `${c}.entries`);
+    assertArray(entries, c.concat('entries'));
     entries.forEach((e, j) => {
-      const ec = `[lootTables.json] table[${i}].entries[${j}]`;
+      const ec = c.concat('entries', j);
       assertKey(e, 'group', ec);
       assertKey(e, 'weight', ec);
     });
@@ -194,7 +219,7 @@ export async function loadAllData() {
   zones.forEach((z, i) => {
     z.spawn_table.forEach((s, j) => {
       if (!monsterIds.has(s.monster_id)) {
-        throw fail('[zones.json]', `zone[${i}].spawn_table[${j}].monster_id '${s.monster_id}' not found in monsters`);
+        throw fail(['zones.json', 'zones', i, 'spawn_table', j, 'monster_id'], `'${s.monster_id}' not found in monsters`);
       }
     });
   });
@@ -203,12 +228,24 @@ export async function loadAllData() {
   difficulties.forEach((d, i) => {
     d.affix_pool.forEach((a, j) => {
       if (!affixIds.has(a)) {
-        throw fail('[difficulties.json]', `difficulty[${i}].affix_pool[${j}] unknown affix '${a}'`);
+        throw fail(['difficulties.json', 'difficulties', i, 'affix_pool', j], `unknown affix '${a}'`);
       }
     });
   });
 
-  return { difficulties, zones, monsters, tiers, affixes, loot_tables };
+  const uniqueIndex = tiers.findIndex((t) => t.id === 'unique');
+  if (uniqueIndex >= 0) {
+    const u = tiers[uniqueIndex];
+    if (u.minions) {
+      const cr = u.minions.count_range;
+      if (!Array.isArray(cr) || cr.length !== 2 || cr[0] > cr[1]) {
+        throw fail(['tiers.json', 'tiers', uniqueIndex, 'minions', 'count_range'], `invalid: ${JSON.stringify(cr)}`);
+      }
+    }
+  }
+
+  const result = { difficulties, zones, monsters, tiers, affixes, loot_tables };
+  return deepFreeze(result);
 }
 
 /**
