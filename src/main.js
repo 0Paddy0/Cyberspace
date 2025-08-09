@@ -1,8 +1,6 @@
-import { rng } from './rng.js';
-import { loadData } from './dataLoader.js';
-import { spawn } from './spawn.js';
-import { formula } from './formulas.js';
+import { initLegacyGame } from './legacy/game.js';
 
-export function main() {
-  // Entry point placeholder
+const rootEl = document.getElementById('app');
+if (rootEl) {
+  initLegacyGame(rootEl);
 }
