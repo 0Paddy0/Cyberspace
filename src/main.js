@@ -12,16 +12,17 @@ function initMobileControls(){
 }
 initMobileControls();
 
-const canvas = document.querySelector('#view');
-function onResize(){ fitCanvasToScreen(canvas); }
-window.addEventListener('resize', onResize, { passive:true });
-onResize();
+const canvas = document.querySelector('canvas');
+function applySizing(){ fitCanvasToScreen(canvas); }
+window.addEventListener('resize', applySizing, { passive:true });
+if (window.visualViewport) {
+  window.visualViewport.addEventListener('resize', applySizing, { passive:true });
+}
+applySizing();
 
-// Pointer-Events statt separater Mouse/Touch:
-canvas.addEventListener('pointerdown', e => { e.preventDefault(); /* start handling */ });
-canvas.addEventListener('pointermove', e => { e.preventDefault(); /* move handling */ });
-canvas.addEventListener('pointerup', e => { /* end handling */ });
-canvas.addEventListener('pointercancel', e => { /* cancel handling */ });
+['pointerdown','pointermove','wheel','touchstart','touchmove'].forEach(t => {
+  canvas.addEventListener(t, e => { if (e.cancelable) e.preventDefault(); }, { passive:false });
+});
 
 function gameTick(){
   const v = joystick ? joystick.get() : {x:0,y:0};
