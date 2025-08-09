@@ -32,6 +32,12 @@
 
     .hud-hint{position:fixed; bottom:12px; left:12px; font-size:12px; color:#a8eaff; text-shadow:0 0 8px #0ff8}
     .top-right{position:fixed; top:10px; right:12px; font-size:12px; color:#aaf; text-shadow:0 0 8px #0ff8}
+
+    /* minimal spawn tester ui */
+    #controls{margin:8px;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+    #controls label{margin-right:4px}
+    #status{margin:8px}
+    #out{margin:8px;padding:8px;max-height:240px;overflow:auto;border:1px solid #0ff4;background:#0004}
   </style>
 </head>
 <body>
@@ -72,6 +78,16 @@
 
     <div class="hud-hint">← → ↑ ↓: Bewegen (auch Zielen) • Leertaste: Feuer • Q/E: Plasma/Cluster • R: Singularität • G: Drohnen-Überladung • Z: Shutdown • K: Skillbaum • P: Pause • M: Mute</div>
     <div class="top-right" id="info"></div>
+
+    <div id="controls">
+      <label>Zone <select id="zone"></select></label>
+      <label>Difficulty <select id="difficulty"></select></label>
+      <label>Seed <input id="seed" value="demo"></label>
+      <button id="spawn">Spawn Pack</button>
+      <button id="spawnToWorld">Spawn To World</button>
+    </div>
+    <div id="status"></div>
+    <pre id="out"></pre>
   </div>
   <script type="module" src="/src/main.js"></script>
 </body>
