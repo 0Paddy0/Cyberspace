@@ -120,15 +120,16 @@ class Player{
     this.hpMax=120; this.hp=this.hpMax; this.shieldMax=80; this.shield=this.shieldMax; this.shieldRegen=10; this.shieldCD=0; this.base={hpMax:this.hpMax, shieldMax:this.shieldMax, speed:this.speed}; // seconds until regen starts
   }
   update(dt, game){
-    let dx=0,dy=0;
-    if(Input.isDown('ArrowLeft')) dx-=1;
-    if(Input.isDown('ArrowRight')) dx+=1;
-    if(Input.isDown('ArrowUp')) dy-=1;
-    if(Input.isDown('ArrowDown')) dy+=1;
+    let dx = mobileInput.x;
+    let dy = -mobileInput.y;
+    if(Input.isDown('ArrowLeft')) dx -= 1;
+    if(Input.isDown('ArrowRight')) dx += 1;
+    if(Input.isDown('ArrowUp')) dy -= 1;
+    if(Input.isDown('ArrowDown')) dy += 1;
     const len = Math.hypot(dx,dy);
+    if(len > 1){ dx /= len; dy /= len; }
     if(len>0.0001){ this.aim = Math.atan2(dy, dx); }
-    const denom = len || 1;
-    this.x += (dx/denom)*this.speed*dt; this.y += (dy/denom)*this.speed*dt; this.x=clamp(this.x,20,WORLD_W-20); this.y=clamp(this.y,20,WORLD_H-20);
+    this.x += dx*this.speed*dt; this.y += dy*this.speed*dt; this.x=clamp(this.x,20,WORLD_W-20); this.y=clamp(this.y,20,WORLD_H-20);
     
     // Regen shield if not recently hit
     if(this.shield< this.shieldMax){ if(this.shieldCD>0) this.shieldCD-=dt; else this.shield = clamp(this.shield + this.shieldRegen*dt, 0, this.shieldMax); }
@@ -537,6 +538,12 @@ export function fitCanvasToScreen(canvas) {
   const ctx = canvas.getContext('2d');
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0); // Zeichnen in CSS-Pixeln
   return { dpr, w, h, ctx };
+}
+
+let mobileInput = {x:0,y:0};
+/** Von main.js aufgerufen */
+export function setMobileInputVector(v){
+  mobileInput = v || {x:0,y:0};
 }
 
 /** @typedef {import('../types').UnitInstance} UnitInstance */

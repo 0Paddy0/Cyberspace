@@ -1,9 +1,16 @@
 import { loadAllData } from './dataLoader.js';
 import { spawnPack } from './spawn.js';
-import { initLegacyGame, addUnitsToWorld, getWorldSummary, fitCanvasToScreen } from './legacy/game.js';
+import { initLegacyGame, addUnitsToWorld, getWorldSummary, fitCanvasToScreen, setMobileInputVector } from './legacy/game.js';
+import { createJoystick } from './mobileJoystick.js';
 
 const rootEl = document.getElementById('app');
 initLegacyGame(rootEl);
+
+let joystick = null;
+function initMobileControls(){
+  if (!joystick) joystick = createJoystick(document.body);
+}
+initMobileControls();
 
 const canvas = document.querySelector('#view');
 function onResize(){ fitCanvasToScreen(canvas); }
@@ -15,6 +22,13 @@ canvas.addEventListener('pointerdown', e => { e.preventDefault(); /* start handl
 canvas.addEventListener('pointermove', e => { e.preventDefault(); /* move handling */ });
 canvas.addEventListener('pointerup', e => { /* end handling */ });
 canvas.addEventListener('pointercancel', e => { /* cancel handling */ });
+
+function gameTick(){
+  const v = joystick ? joystick.get() : {x:0,y:0};
+  setMobileInputVector(v);
+  requestAnimationFrame(gameTick);
+}
+requestAnimationFrame(gameTick);
 
 let lastSpawn = null;
 
