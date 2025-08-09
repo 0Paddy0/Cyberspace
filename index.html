@@ -1,11 +1,78 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="de">
 <head>
   <meta charset="utf-8" />
-  <title>Vanilla Game</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Neon Void — Cyberpunk Shooter</title>
+  <style>
+    :root{
+      --bg:#0a0c10; /* deep space */
+      --neon-cyan:#00f0ff;
+      --neon-pink:#ff00e5;
+      --neon-lime:#00ff85;
+      --neon-yellow:#ffd400;
+      --hud:#00e5ff;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%;margin:0;background:radial-gradient(1200px 800px at 70% 20%, #0f1420 0%, #0b0e14 50%, #05070b 100%) fixed; color:#cfe9ff; font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Inter,Arial; overflow:hidden}
+    #wrap{position:fixed;inset:0;display:grid;place-items:center}
+    canvas#view{image-rendering:pixelated;background:#000;box-shadow:0 0 40px #05f4, 0 0 120px #0af2 inset;border:1px solid #0af7;border-radius:12px}
+    .scanlines{pointer-events:none;position:fixed;inset:0;background:linear-gradient(rgba(255,255,255,0.04),rgba(0,0,0,0.08));mix-blend-mode:overlay;background-size:100% 2px;opacity:.25}
+
+    /* HUD overlay and holo panels */
+    .overlay{position:fixed;inset:0;display:grid;place-items:center;}
+    .panel{min-width: min(820px, 92vw); max-width: 92vw; padding:22px 24px; border:1px solid #0ff5; border-radius:14px; background:linear-gradient(180deg, rgba(0,20,30,.85), rgba(0,8,14,.75)); box-shadow:0 0 22px #0ff4, inset 0 0 40px #0af2}
+    .title{font-size:clamp(24px,4vw,40px); letter-spacing:.08em; color:var(--neon-cyan); text-shadow:0 0 12px #0ff8, 0 0 30px #0ff9}
+    .subtitle{opacity:.9; margin-top:6px}
+    .cards{display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:14px; margin-top:18px}
+    .card{padding:14px;border:1px solid #0ff4;border-radius:12px;background:linear-gradient(180deg, #001018C0, #000A10B0); cursor:pointer; transition:.15s transform, .15s box-shadow;}
+    .card:hover{transform:translateY(-2px); box-shadow:0 0 20px #0ff4}
+    .card h4{margin:6px 0 8px 0; color:var(--neon-yellow); text-shadow:0 0 8px #ffd40080}
+    .muted{opacity:.8}
+
+    .hud-hint{position:fixed; bottom:12px; left:12px; font-size:12px; color:#a8eaff; text-shadow:0 0 8px #0ff8}
+    .top-right{position:fixed; top:10px; right:12px; font-size:12px; color:#aaf; text-shadow:0 0 8px #0ff8}
+  </style>
 </head>
 <body>
-  <div id="app"></div>
+  <div id="app">
+    <div id="wrap">
+      <canvas id="view" width="960" height="540" aria-label="Neon Void Game"></canvas>
+    </div>
+    <div class="scanlines"></div>
+
+    <!-- MENU / LEVEL-UP / PAUSE will be drawn on-canvas; but we keep a small DOM help for Level-up choices -->
+    <div id="levelup" class="overlay" style="display:none">
+      <div class="panel">
+        <div class="title">LEVEL-UP</div>
+        <div class="subtitle">Wähle eines von drei Upgrades (Taste 1/2/3 oder klicken)</div>
+        <div id="perk-cards" class="cards"></div>
+        <div class="muted" style="margin-top:10px">Pfade: <b>Assault</b> (DPS) &bull; <b>Aegis</b> (Defense)</div>
+      </div>
+    </div>
+
+    <!-- SKILL TREE OVERLAY -->
+    <div id="skills" class="overlay" style="display:none">
+      <div class="panel">
+        <div class="title">SKILLBAUM & ATTRIBUTE</div>
+        <div class="subtitle">Skillpunkte (SP) und Attributpunkte (AP) verteilen • K = öffnen/schließen</div>
+        <div id="points" class="muted" style="margin-top:8px"></div>
+        <div style="display:grid; grid-template-columns: 280px 1fr; gap:16px; margin-top:14px; max-height:62vh; overflow:auto">
+          <div>
+            <h4 style="margin:4px 0 8px 0; color: var(--neon-yellow);">Attribute</h4>
+            <div id="attr" class="cards"></div>
+          </div>
+          <div>
+            <h4 style="margin:4px 0 8px 0; color: var(--neon-yellow);">Skills (3 Bäume)</h4>
+            <div id="trees" class="cards"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="hud-hint">← → ↑ ↓: Bewegen (auch Zielen) • Leertaste: Feuer • Q/E: Plasma/Cluster • R: Singularität • G: Drohnen-Überladung • Z: Shutdown • K: Skillbaum • P: Pause • M: Mute</div>
+    <div class="top-right" id="info"></div>
+  </div>
   <script type="module" src="/src/main.js"></script>
 </body>
 </html>
