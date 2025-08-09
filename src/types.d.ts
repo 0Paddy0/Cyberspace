@@ -93,3 +93,26 @@ export interface GameData {
   affixes: Affix[];
   loot_tables: LootTable[];
 }
+
+export interface AffixInstance {
+  id: string;
+  mods: Record<string, unknown>;
+}
+
+export interface UnitInstance {
+  id: string;
+  monster_id: string;
+  name: string;
+  tier: string;
+  level: number;
+  stats: {
+    hp: number;
+    dps: number;
+    def: number;
+  };
+  resists: Record<string, number>;
+  flags: { immune: string[] };
+  affixes: AffixInstance[];
+  ai: string;
+  lootTable: string;
+}
