@@ -1,1 +1,43 @@
-[]
+{
+  "tiers": [
+    {
+      "id": "normal",
+      "level_bonus": 0,
+      "hp_mult": 1.0,
+      "dps_mult": 1.0,
+      "def_mult": 1.0,
+      "affix_count": [0, 0]
+    },
+    {
+      "id": "champion",
+      "level_bonus": 2,
+      "hp_mult": 2.0,
+      "dps_mult": 1.2,
+      "def_mult": 1.2,
+      "affix_count": [1, 1]
+    },
+    {
+      "id": "unique",
+      "level_bonus": 3,
+      "hp_mult": 3.5,
+      "dps_mult": 1.5,
+      "def_mult": 1.5,
+      "affix_count": [2, 3],
+      "minions": {
+        "count_range": [3, 6],
+        "level_bonus": 1,
+        "hp_mult": 1.5,
+        "dps_mult": 1.2,
+        "def_mult": 1.2
+      }
+    },
+    {
+      "id": "boss",
+      "level_bonus": 5,
+      "hp_mult": 10.0,
+      "dps_mult": 2.0,
+      "def_mult": 2.0,
+      "affix_count": [2, 4]
+    }
+  ]
+}

@@ -1,1 +1,72 @@
-[]
+{
+  "monsters": [
+    {
+      "id": "scavenger_drone",
+      "role": "melee_swarm",
+      "base_level_offset": 0,
+      "base_hp": 18,
+      "base_dps": 3,
+      "base_def": 6,
+      "base_res": {"laser": 0, "plasma": 0, "ion": 0, "kinetic": 0},
+      "ai": {"type": "pack_ai", "aggro_radius": 10}
+    },
+    {
+      "id": "rust_raider",
+      "role": "slow_tank",
+      "base_level_offset": 0,
+      "base_hp": 35,
+      "base_dps": 2,
+      "base_def": 10,
+      "base_res": {"kinetic": 20, "ion": 0, "laser": 0, "plasma": 0},
+      "ai": {"type": "slow_melee", "aggro_radius": 8}
+    },
+    {
+      "id": "needle_turret",
+      "role": "ranged_pester",
+      "base_level_offset": 0,
+      "base_hp": 12,
+      "base_dps": 4,
+      "base_def": 4,
+      "base_res": {"laser": 0, "plasma": 0, "ion": 0, "kinetic": 0},
+      "ai": {
+        "type": "kiting_ranged",
+        "aggro_radius": 12,
+        "keep_distance": 6
+      }
+    },
+    {
+      "id": "void_knight",
+      "role": "caster_support",
+      "base_level_offset": 1,
+      "base_hp": 120,
+      "base_dps": 18,
+      "base_def": 80,
+      "base_res": {"laser": 0, "plasma": 0, "ion": 20, "kinetic": 0},
+      "ai": {
+        "type": "caster",
+        "aggro_radius": 18,
+        "uses_curses": true
+      }
+    },
+    {
+      "id": "doom_cruiser",
+      "role": "bruiser",
+      "base_level_offset": 1,
+      "base_hp": 160,
+      "base_dps": 22,
+      "base_def": 90,
+      "base_res": {"laser": 10, "plasma": 0, "ion": 0, "kinetic": 10},
+      "ai": {"type": "aggressive", "aggro_radius": 16}
+    },
+    {
+      "id": "venom_wyrm",
+      "role": "glass_cannon",
+      "base_level_offset": 2,
+      "base_hp": 80,
+      "base_dps": 30,
+      "base_def": 40,
+      "base_res": {"laser": 0, "plasma": 25, "ion": 0, "kinetic": 0},
+      "ai": {"type": "hit_and_run", "aggro_radius": 14}
+    }
+  ]
+}
